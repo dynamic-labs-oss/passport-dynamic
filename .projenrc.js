@@ -21,6 +21,7 @@ const project = new typescript.TypeScriptProject({
   ] /* Build dependencies for this module. */,
   // packageName: undefined,  /* The "name" in package.json. */
   releaseToNpm: true,
+  workflowNodeVersion: '22.x',
   repository: 'https://github.com/dynamic-labs/passport-dynamic.git',
   npmDistTag: 'latest',
   npmRegistryUrl: 'https://registry.npmjs.org',
