@@ -26,5 +26,23 @@ const project = new typescript.TypeScriptProject({
   npmDistTag: 'latest',
   npmRegistryUrl: 'https://registry.npmjs.org',
   packageManager: 'npm',
+  projenVersion: '0.78.8',
 });
+
+// actions/(upload|download)-artifact@v3 is deprecated and hard-fails; pin to v4
+// (v4 upload requires v4 download). This projen version still generates v3.
+const artifactSteps = {
+  'build': { 'build': { 5: 'actions/upload-artifact@v4' }, 'self-mutation': { 1: 'actions/download-artifact@v4' } },
+  'release': { 'release': { 7: 'actions/upload-artifact@v4' }, 'release_github': { 1: 'actions/download-artifact@v4' }, 'release_npm': { 1: 'actions/download-artifact@v4' } },
+  'upgrade-main': { 'upgrade': { 5: 'actions/upload-artifact@v4' }, 'pr': { 1: 'actions/download-artifact@v4' } },
+};
+for (const [file, jobs] of Object.entries(artifactSteps)) {
+  const wf = project.tryFindObjectFile(`.github/workflows/${file}.yml`);
+  for (const [job, steps] of Object.entries(jobs)) {
+    for (const [i, action] of Object.entries(steps)) {
+      wf.addOverride(`jobs.${job}.steps.${i}.uses`, action);
+    }
+  }
+}
+
 project.synth();
