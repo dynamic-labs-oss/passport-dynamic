@@ -29,14 +29,15 @@ const project = new typescript.TypeScriptProject({
   projenVersion: '0.78.8',
 });
 
-// actions/(upload|download)-artifact@v3 is deprecated and hard-fails; pin to v4
-// (v4 upload requires v4 download). This projen version still generates v3.
-const artifactSteps = {
-  'build': { 'build': { 5: 'actions/upload-artifact@v4' }, 'self-mutation': { 1: 'actions/download-artifact@v4' } },
-  'release': { release: { 7: 'actions/upload-artifact@v4' }, release_github: { 1: 'actions/download-artifact@v4' }, release_npm: { 1: 'actions/download-artifact@v4' } },
-  'upgrade-main': { upgrade: { 5: 'actions/upload-artifact@v4' }, pr: { 1: 'actions/download-artifact@v4' } },
+// This projen version still generates Node-20-era actions; bump to Node 24
+// runtimes (checkout@v6, setup-node@v6, artifact actions@v5,
+// create-pull-request@v7).
+const actionSteps = {
+  'build': { 'build': { 0: 'actions/checkout@v6', 1: 'actions/setup-node@v6', 5: 'actions/upload-artifact@v5' }, 'self-mutation': { 0: 'actions/checkout@v6', 1: 'actions/download-artifact@v5' } },
+  'release': { release: { 0: 'actions/checkout@v6', 2: 'actions/setup-node@v6', 7: 'actions/upload-artifact@v5' }, release_github: { 0: 'actions/setup-node@v6', 1: 'actions/download-artifact@v5' }, release_npm: { 0: 'actions/setup-node@v6', 1: 'actions/download-artifact@v5' } },
+  'upgrade-main': { upgrade: { 0: 'actions/checkout@v6', 1: 'actions/setup-node@v6', 5: 'actions/upload-artifact@v5' }, pr: { 0: 'actions/checkout@v6', 1: 'actions/download-artifact@v5', 4: 'peter-evans/create-pull-request@v7' } },
 };
-for (const [file, jobs] of Object.entries(artifactSteps)) {
+for (const [file, jobs] of Object.entries(actionSteps)) {
   const wf = project.tryFindObjectFile(`.github/workflows/${file}.yml`);
   for (const [job, steps] of Object.entries(jobs)) {
     for (const [i, action] of Object.entries(steps)) {
