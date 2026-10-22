@@ -34,7 +34,7 @@ jobs:
           git diff --staged --patch --exit-code > .repo.patch || echo "self_mutation_happened=true" >> $GITHUB_OUTPUT
       - name: Upload patch
         if: steps.self_mutation.outputs.self_mutation_happened
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: .repo.patch
           path: .repo.patch
@@ -59,7 +59,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Download patch
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: .repo.patch
           path: ${{ runner.temp }}
