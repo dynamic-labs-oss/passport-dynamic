@@ -37,6 +37,7 @@ jobs:
         with:
           name: .repo.patch
           path: .repo.patch
+          include-hidden-files: true
   pr:
     name: Create Pull Request
     needs: upgrade

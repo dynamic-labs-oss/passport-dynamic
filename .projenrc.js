@@ -44,5 +44,11 @@ for (const [file, jobs] of Object.entries(artifactSteps)) {
     }
   }
 }
+// upload-artifact@v4 excludes hidden files by default; .repo.patch is hidden
+for (const file of ['build', 'upgrade-main']) {
+  const wf = project.tryFindObjectFile(`.github/workflows/${file}.yml`);
+  const job = file === 'build' ? 'build' : 'upgrade';
+  wf.addOverride(`jobs.${job}.steps.5.with.include-hidden-files`, true);
+}
 
 project.synth();
